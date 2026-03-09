@@ -209,25 +209,11 @@ NEW_LANDING = """        <span class="landing-label" style="color: var(--brand-h
             <button class="tool-tab-btn" data-tab="converter" onclick="window.switchTab('converter')">&#x1F504; FORMAT CONVERTER</button>
         </div>
 
-        <!-- Quick Upload -->
-        <div id="tab-panel-quick-upload" class="tool-tab-panel active">
-            <div style="text-align:center; padding:36px 20px;">
-                <div style="font-size:48px; margin-bottom:14px;">&#x26A1;</div>
-                <h3 style="color:var(--brand-hover); margin:0 0 10px; font-size:18px; text-transform:uppercase; letter-spacing:1px;">Quick Upload</h3>
-                <p style="color:var(--brand-text-sec); font-size:13px; margin:0 auto 26px; max-width:360px; line-height:1.6;">Upload your artwork, fit it to the selected mat size, apply optional color correction, and download a print-ready JPG.</p>
-                <button class="action-btn btn-landing-simple" style="max-width:220px; padding:16px; font-size:15px;" onclick="window.triggerSimpleFlow()">OPEN EDITOR &#x2192;</button>
-            </div>
-        </div>
+        <!-- Quick Upload: editor launches immediately when this tab is clicked via switchTab() -->
+        <div id="tab-panel-quick-upload" class="tool-tab-panel active"></div>
 
-        <!-- Advanced Editor -->
-        <div id="tab-panel-adv-editor" class="tool-tab-panel">
-            <div style="text-align:center; padding:36px 20px;">
-                <div style="font-size:48px; margin-bottom:14px;">&#x270F;&#xFE0F;</div>
-                <h3 style="color:var(--brand-hover); margin:0 0 10px; font-size:18px; text-transform:uppercase; letter-spacing:1px;">Advanced Editor</h3>
-                <p style="color:var(--brand-text-sec); font-size:13px; margin:0 auto 26px; max-width:360px; line-height:1.6;">Full canvas editor with AI upscaling, frame break, game overlay templates, recolor brush, and precise positioning controls.</p>
-                <button class="action-btn btn-landing-adv" style="max-width:220px; padding:16px; font-size:15px;" onclick="window.triggerAdvancedFlow()">OPEN EDITOR &#x2192;</button>
-            </div>
-        </div>
+        <!-- Advanced Editor: editor launches immediately when this tab is clicked via switchTab() -->
+        <div id="tab-panel-adv-editor" class="tool-tab-panel"></div>
 
         <!-- Batch Enhance -->
         <div id="tab-panel-batch" class="tool-tab-panel">
@@ -373,6 +359,9 @@ NEW_JS = """
         });
         var panel = document.getElementById('tab-panel-' + tabId);
         if (panel) panel.classList.add('active');
+        // Editor tabs launch their flow immediately — no button needed
+        if (tabId === 'quick-upload') { window.triggerSimpleFlow();   return; }
+        if (tabId === 'adv-editor')   { window.triggerAdvancedFlow(); return; }
     };
 
     window.openBatchMode = function() { window.switchTab('batch'); };
@@ -667,6 +656,31 @@ TAB_CSS = """    <style>
     .tool-tab-btn.active { color: var(--brand-hover); border-bottom-color: var(--brand-hover); }
     .tool-tab-panel { display: none; }
     .tool-tab-panel.active { display: block; }
+
+    /* ── RESPONSIVE WIDTH ── */
+    /* Override the source's max-width:600px on #landing-ui so it fills wide screens */
+    #landing-ui {
+        max-width: 1100px !important;
+        padding: 10px 32px !important;
+        box-sizing: border-box;
+    }
+    /* Make batch/converter preview grids denser on wider screens */
+    @media (min-width: 700px) {
+        #batch-preview-grid,
+        #converter-preview-grid {
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        }
+    }
+    @media (min-width: 1000px) {
+        #landing-ui { padding: 10px 56px !important; }
+        #batch-preview-grid,
+        #converter-preview-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+    @media (min-width: 1280px) {
+        #landing-ui { padding: 10px 80px !important; }
+    }
     </style>"""
 
 HEAD_EXTRAS = (
