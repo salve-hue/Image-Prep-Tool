@@ -39,6 +39,26 @@
     .tool-tab-panel { display: none; }
     .tool-tab-panel.active { display: block; }
 
+    /* ── QUICK UPLOAD INLINE / TAB MODE ── */
+    /* When #simple-backdrop is moved into the tab panel it becomes a static block */
+    #simple-backdrop.tab-mode {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+        z-index: auto !important;
+        overflow: visible !important;
+    }
+    #simple-backdrop.tab-mode #simple-modal {
+        max-width: none !important;
+        max-height: none !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+        overflow: visible !important;
+    }
+    #simple-backdrop.tab-mode .version-tag { display: none; }
+
     /* ── RESPONSIVE WIDTH ── */
     /* Override the source's max-width:600px on #landing-ui so it fills wide screens */
     #landing-ui {
@@ -1268,6 +1288,12 @@
 
     // Measure the 
     window.restartApp = () => {
+        var _rsbd = document.getElementById('simple-backdrop');
+        if (_rsbd.classList.contains('tab-mode')) {
+            _rsbd.classList.remove('tab-mode');
+            var _rAdvBd = document.getElementById('adv-backdrop');
+            if (_rAdvBd && _rAdvBd.parentNode) _rAdvBd.parentNode.insertBefore(_rsbd, _rAdvBd);
+        }
         document.getElementById('adv-backdrop').style.display       = 'none';
         document.getElementById('simple-backdrop').style.display      = 'none';
         document.body.style.overflow = '';
@@ -1323,6 +1349,8 @@
         document.getElementById('designer-visibility-wrapper').style.display = '';
         window.updateInfoBars(null);
         window.populateGameDropdowns();
+        // Auto-open the Quick Upload tab so the canvas is ready immediately
+        setTimeout(function() { window.switchTab('quick-upload'); }, 0);
     };
 
     // --- DPI CHECKER ---
@@ -1518,8 +1546,12 @@
     // --- SIMPLE CANVAS ---
     window.handleSimpleUpload = (input) => {
         if (!input.files[0]) return;
-        document.getElementById('landing-ui').style.display      = 'none';
-        window._applyNavOffsetToSimple(); document.getElementById('simple-backdrop').style.display = 'flex';
+        var _sbd = document.getElementById('simple-backdrop');
+        if (!_sbd.classList.contains('tab-mode')) {
+            document.getElementById('landing-ui').style.display = 'none';
+            window._applyNavOffsetToSimple();
+            _sbd.style.display = 'flex';
+        }
         window.initSimpleCanvas();
         const r = new FileReader();
         r.onload = (f) => {
@@ -2389,6 +2421,17 @@
 
     // ── TAB NAVIGATION ──────────────────────────────────────────
     window.switchTab = function(tabId) {
+        var bd      = document.getElementById('simple-backdrop');
+        var quPanel = document.getElementById('tab-panel-quick-upload');
+
+        // If leaving quick-upload: restore simple-backdrop to its original DOM position
+        if (bd.classList.contains('tab-mode') && tabId !== 'quick-upload') {
+            bd.classList.remove('tab-mode');
+            bd.style.display = 'none';
+            var advBd = document.getElementById('adv-backdrop');
+            if (advBd && advBd.parentNode) advBd.parentNode.insertBefore(bd, advBd);
+        }
+
         document.querySelectorAll('.tool-tab-btn').forEach(function(b) {
             b.classList.toggle('active', b.dataset.tab === tabId);
         });
@@ -2397,9 +2440,21 @@
         });
         var panel = document.getElementById('tab-panel-' + tabId);
         if (panel) panel.classList.add('active');
-        // Editor tabs launch their flow immediately — no button needed
-        if (tabId === 'quick-upload') { window.triggerSimpleFlow();   return; }
-        if (tabId === 'adv-editor')   { window.triggerAdvancedFlow(); return; }
+
+        // Quick Upload: move simple-backdrop into the tab panel and show inline
+        if (tabId === 'quick-upload') {
+            quPanel.appendChild(bd);
+            bd.classList.add('tab-mode');
+            bd.style.display = 'block';
+            requestAnimationFrame(function() {
+                window.initSimpleCanvas();
+                window.updateInfoBars(null);
+                window.populateGameDropdowns();
+            });
+            return;
+        }
+        // Advanced Editor: open its overlay
+        if (tabId === 'adv-editor') { window.triggerAdvancedFlow(); return; }
     };
 
     window.openBatchMode = function() { window.switchTab('batch'); };

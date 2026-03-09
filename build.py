@@ -112,6 +112,8 @@ src = rb(src,
         document.getElementById('designer-visibility-wrapper').style.display = '';
         window.updateInfoBars(null);
         window.populateGameDropdowns();
+        // Auto-open the Quick Upload tab so the canvas is ready immediately
+        setTimeout(function() { window.switchTab('quick-upload'); }, 0);
     };
 
     // --- DPI CHECKER ---'''
@@ -168,6 +170,44 @@ src = src.replace(
     '// FIX 6: Correct radius formula — was (cx*cx + cy*cy) in the old cart path, now unified'
 )
 print('1r. Cleaned stale comment references')
+
+# 1s. Patch handleSimpleUpload — skip overlay show/hide when already in tab-mode
+src = src.replace(
+    "    window.handleSimpleUpload = (input) => {\n"
+    "        if (!input.files[0]) return;\n"
+    "        document.getElementById('landing-ui').style.display      = 'none';\n"
+    "        window._applyNavOffsetToSimple(); document.getElementById('simple-backdrop').style.display = 'flex';\n"
+    "        window.initSimpleCanvas();",
+
+    "    window.handleSimpleUpload = (input) => {\n"
+    "        if (!input.files[0]) return;\n"
+    "        var _sbd = document.getElementById('simple-backdrop');\n"
+    "        if (!_sbd.classList.contains('tab-mode')) {\n"
+    "            document.getElementById('landing-ui').style.display = 'none';\n"
+    "            window._applyNavOffsetToSimple();\n"
+    "            _sbd.style.display = 'flex';\n"
+    "        }\n"
+    "        window.initSimpleCanvas();"
+)
+print('1s. Patched handleSimpleUpload for tab-mode')
+
+# 1t. Patch restartApp — clean up tab-mode and restore DOM before teardown
+src = src.replace(
+    "    window.restartApp = () => {\n"
+    "        document.getElementById('adv-backdrop').style.display       = 'none';\n"
+    "        document.getElementById('simple-backdrop').style.display      = 'none';",
+
+    "    window.restartApp = () => {\n"
+    "        var _rsbd = document.getElementById('simple-backdrop');\n"
+    "        if (_rsbd.classList.contains('tab-mode')) {\n"
+    "            _rsbd.classList.remove('tab-mode');\n"
+    "            var _rAdvBd = document.getElementById('adv-backdrop');\n"
+    "            if (_rAdvBd && _rAdvBd.parentNode) _rAdvBd.parentNode.insertBefore(_rsbd, _rAdvBd);\n"
+    "        }\n"
+    "        document.getElementById('adv-backdrop').style.display       = 'none';\n"
+    "        document.getElementById('simple-backdrop').style.display      = 'none';"
+)
+print('1t. Patched restartApp for tab-mode cleanup')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 2 – MODIFY HTML
@@ -351,6 +391,17 @@ NEW_JS = """
 
     // ── TAB NAVIGATION ──────────────────────────────────────────
     window.switchTab = function(tabId) {
+        var bd      = document.getElementById('simple-backdrop');
+        var quPanel = document.getElementById('tab-panel-quick-upload');
+
+        // If leaving quick-upload: restore simple-backdrop to its original DOM position
+        if (bd.classList.contains('tab-mode') && tabId !== 'quick-upload') {
+            bd.classList.remove('tab-mode');
+            bd.style.display = 'none';
+            var advBd = document.getElementById('adv-backdrop');
+            if (advBd && advBd.parentNode) advBd.parentNode.insertBefore(bd, advBd);
+        }
+
         document.querySelectorAll('.tool-tab-btn').forEach(function(b) {
             b.classList.toggle('active', b.dataset.tab === tabId);
         });
@@ -359,9 +410,21 @@ NEW_JS = """
         });
         var panel = document.getElementById('tab-panel-' + tabId);
         if (panel) panel.classList.add('active');
-        // Editor tabs launch their flow immediately — no button needed
-        if (tabId === 'quick-upload') { window.triggerSimpleFlow();   return; }
-        if (tabId === 'adv-editor')   { window.triggerAdvancedFlow(); return; }
+
+        // Quick Upload: move simple-backdrop into the tab panel and show inline
+        if (tabId === 'quick-upload') {
+            quPanel.appendChild(bd);
+            bd.classList.add('tab-mode');
+            bd.style.display = 'block';
+            requestAnimationFrame(function() {
+                window.initSimpleCanvas();
+                window.updateInfoBars(null);
+                window.populateGameDropdowns();
+            });
+            return;
+        }
+        // Advanced Editor: open its overlay
+        if (tabId === 'adv-editor') { window.triggerAdvancedFlow(); return; }
     };
 
     window.openBatchMode = function() { window.switchTab('batch'); };
@@ -656,6 +719,26 @@ TAB_CSS = """    <style>
     .tool-tab-btn.active { color: var(--brand-hover); border-bottom-color: var(--brand-hover); }
     .tool-tab-panel { display: none; }
     .tool-tab-panel.active { display: block; }
+
+    /* ── QUICK UPLOAD INLINE / TAB MODE ── */
+    /* When #simple-backdrop is moved into the tab panel it becomes a static block */
+    #simple-backdrop.tab-mode {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+        z-index: auto !important;
+        overflow: visible !important;
+    }
+    #simple-backdrop.tab-mode #simple-modal {
+        max-width: none !important;
+        max-height: none !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+        overflow: visible !important;
+    }
+    #simple-backdrop.tab-mode .version-tag { display: none; }
 
     /* ── RESPONSIVE WIDTH ── */
     /* Override the source's max-width:600px on #landing-ui so it fills wide screens */
