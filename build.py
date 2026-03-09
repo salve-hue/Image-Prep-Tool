@@ -191,23 +191,86 @@ src = src.replace(
 )
 print('1s. Patched handleSimpleUpload for tab-mode')
 
-# 1t. Patch restartApp — clean up tab-mode and restore DOM before teardown
+# 1t. Patch restartApp — clean up BOTH backdrops' tab-mode before teardown
 src = src.replace(
     "    window.restartApp = () => {\n"
     "        document.getElementById('adv-backdrop').style.display       = 'none';\n"
     "        document.getElementById('simple-backdrop').style.display      = 'none';",
 
     "    window.restartApp = () => {\n"
+    "        var _dvw  = document.getElementById('designer-visibility-wrapper');\n"
     "        var _rsbd = document.getElementById('simple-backdrop');\n"
+    "        var _rabd = document.getElementById('adv-backdrop');\n"
     "        if (_rsbd.classList.contains('tab-mode')) {\n"
     "            _rsbd.classList.remove('tab-mode');\n"
-    "            var _rAdvBd = document.getElementById('adv-backdrop');\n"
-    "            if (_rAdvBd && _rAdvBd.parentNode) _rAdvBd.parentNode.insertBefore(_rsbd, _rAdvBd);\n"
+    "            if (_dvw) _dvw.appendChild(_rsbd);\n"
+    "        }\n"
+    "        if (_rabd.classList.contains('tab-mode')) {\n"
+    "            _rabd.classList.remove('tab-mode');\n"
+    "            if (_dvw) _dvw.appendChild(_rabd);\n"
     "        }\n"
     "        document.getElementById('adv-backdrop').style.display       = 'none';\n"
     "        document.getElementById('simple-backdrop').style.display      = 'none';"
 )
-print('1t. Patched restartApp for tab-mode cleanup')
+print('1t. Patched restartApp for tab-mode cleanup (both backdrops)')
+
+# 1u. Patch initCanvas — guard canvas re-creation so switching back to Adv tab
+#     preserves existing canvas state (sCanvas has the same guard already)
+src = rb(src,
+    '\n    window.initCanvas = function() {\n        window.canvas  = new fabric.Canvas',
+    '\n        window.changeSize();\n    };',
+    '''
+    window.initCanvas = function() {
+        if (!window.canvas) {
+            window.canvas  = new fabric.Canvas('main-canvas',    { backgroundColor:'#000', preserveObjectStacking:true });
+            window.rCanvas = new fabric.Canvas('recolor-canvas', { backgroundColor:null });
+            window.rCanvas.freeDrawingCursor = 'none';
+            window.rCanvas.on('mouse:move', (o) => { if(o.e) trackCursor(o.e); });
+            window.canvas.on('selection:created', window.handleSelection);
+            window.canvas.on('selection:updated', window.handleSelection);
+            window.canvas.on('selection:cleared', () => {
+                document.getElementById('adv-text-tools').classList.add('hidden-field');
+                window.syncTransformUI();
+            });
+            window.canvas.on('object:modified', function(){ window.updateBleedWarnings(window.canvas); });
+            window.canvas.on('object:added',    function(){ window.updateBleedWarnings(window.canvas); });
+            window.initEraserInteraction();
+        }
+        window.changeSize();
+    };'''
+)
+print('1u. Patched initCanvas with canvas-existence guard')
+
+# 1v. Patch the two isAdv detection points — check tab-mode class OR display:flex
+src = src.replace(
+    "        const isAdv = document.getElementById('adv-backdrop').style.display === 'flex';",
+    "        const isAdv = document.getElementById('adv-backdrop').classList.contains('tab-mode') || document.getElementById('adv-backdrop').style.display === 'flex';"
+)
+src = src.replace(
+    "        const isAdv = document.getElementById('adv-backdrop').style.display==='flex';",
+    "        const isAdv = document.getElementById('adv-backdrop').classList.contains('tab-mode') || document.getElementById('adv-backdrop').style.display==='flex';"
+)
+print('1v. Patched isAdv detection to include tab-mode class check')
+
+# 1w. Patch loadRemoteArt else-branch — guard simple-backdrop show/hide in tab-mode
+src = src.replace(
+    "        if (!isAdv) {\n"
+    "            document.getElementById('landing-ui').style.display      = 'none';\n"
+    "            window._applyNavOffsetToSimple(); document.getElementById('simple-backdrop').style.display = 'flex';\n"
+    "            window.initSimpleCanvas();\n"
+    "        }",
+
+    "        if (!isAdv) {\n"
+    "            var _lsbd = document.getElementById('simple-backdrop');\n"
+    "            if (!_lsbd.classList.contains('tab-mode')) {\n"
+    "                document.getElementById('landing-ui').style.display = 'none';\n"
+    "                window._applyNavOffsetToSimple();\n"
+    "                _lsbd.style.display = 'flex';\n"
+    "            }\n"
+    "            window.initSimpleCanvas();\n"
+    "        }"
+)
+print('1w. Patched loadRemoteArt else-branch for simple tab-mode')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 2 – MODIFY HTML
@@ -392,14 +455,25 @@ NEW_JS = """
     // ── TAB NAVIGATION ──────────────────────────────────────────
     window.switchTab = function(tabId) {
         var bd      = document.getElementById('simple-backdrop');
+        var rabd    = document.getElementById('adv-backdrop');
         var quPanel = document.getElementById('tab-panel-quick-upload');
+        var aePanel = document.getElementById('tab-panel-adv-editor');
+        var dvw     = document.getElementById('designer-visibility-wrapper');
 
-        // If leaving quick-upload: restore simple-backdrop to its original DOM position
+        // Restore simple-backdrop if leaving quick-upload
         if (bd.classList.contains('tab-mode') && tabId !== 'quick-upload') {
             bd.classList.remove('tab-mode');
             bd.style.display = 'none';
-            var advBd = document.getElementById('adv-backdrop');
-            if (advBd && advBd.parentNode) advBd.parentNode.insertBefore(bd, advBd);
+            // Re-insert before adv-backdrop (which is still in designer-visibility-wrapper at this point)
+            if (rabd && rabd.parentNode) rabd.parentNode.insertBefore(bd, rabd);
+            else if (dvw) dvw.appendChild(bd);
+        }
+
+        // Restore adv-backdrop if leaving adv-editor
+        if (rabd.classList.contains('tab-mode') && tabId !== 'adv-editor') {
+            rabd.classList.remove('tab-mode');
+            rabd.style.display = 'none';
+            if (dvw) dvw.appendChild(rabd);
         }
 
         document.querySelectorAll('.tool-tab-btn').forEach(function(b) {
@@ -411,7 +485,7 @@ NEW_JS = """
         var panel = document.getElementById('tab-panel-' + tabId);
         if (panel) panel.classList.add('active');
 
-        // Quick Upload: move simple-backdrop into the tab panel and show inline
+        // Quick Upload: move simple-backdrop into tab panel and show inline
         if (tabId === 'quick-upload') {
             quPanel.appendChild(bd);
             bd.classList.add('tab-mode');
@@ -423,8 +497,20 @@ NEW_JS = """
             });
             return;
         }
-        // Advanced Editor: open its overlay
-        if (tabId === 'adv-editor') { window.triggerAdvancedFlow(); return; }
+
+        // Advanced Editor: move adv-backdrop into tab panel and show inline
+        if (tabId === 'adv-editor') {
+            aePanel.appendChild(rabd);
+            rabd.classList.add('tab-mode');
+            rabd.style.display = 'block';
+            requestAnimationFrame(function() {
+                window.initCanvas();
+                window.updateInfoBars(null);
+                window.populateGameDropdowns();
+                window.toggleAcc('acc-size', true);
+            });
+            return;
+        }
     };
 
     window.openBatchMode = function() { window.switchTab('batch'); };
@@ -739,6 +825,28 @@ TAB_CSS = """    <style>
         overflow: visible !important;
     }
     #simple-backdrop.tab-mode .version-tag { display: none; }
+
+    /* ── ADVANCED EDITOR INLINE / TAB MODE ── */
+    /* When #adv-backdrop is moved into the tab panel it becomes a static block */
+    #adv-backdrop.tab-mode {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+        z-index: auto !important;
+        overflow: visible !important;
+    }
+    #adv-backdrop.tab-mode #playmat-tool-root {
+        max-width: none !important;
+        width: 100% !important;
+        height: calc(100vh - 220px) !important;
+        min-height: 500px !important;
+        max-height: none !important;
+        border-radius: 6px !important;
+    }
+    #adv-backdrop.tab-mode .version-tag { display: none; }
 
     /* ── RESPONSIVE WIDTH ── */
     /* Override the source's max-width:600px on #landing-ui so it fills wide screens */
