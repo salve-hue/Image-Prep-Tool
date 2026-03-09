@@ -188,35 +188,103 @@ OLD_LANDING = (
     '            <button class="action-btn btn-landing-adv" style="max-width: 200px; padding: 15px;" onclick="window.triggerAdvancedFlow()">ADVANCED EDITOR</button>\n'
     '        </div>'
 )
-NEW_LANDING = (
-    '        <span class="landing-label" style="color: var(--brand-hover);">MAT SIZE</span>\n'
-    '        <select id="standalone-size-sel" class="ui-select"\n'
-    '            style="max-width:320px; margin:0 auto 20px; display:block;"\n'
-    '            onchange="APP.activeSizeKey=this.value; window.populateGameDropdowns(); window.updateInfoBars(null);">\n'
-    '            <option value="standard">Standard 24&Prime; &times; 14&Prime;</option>\n'
-    '            <option value="extended">Extended 28&Prime; &times; 14&Prime;</option>\n'
-    '            <option value="victor">Victor Deskmat 24&Prime; &times; 12&Prime;</option>\n'
-    '            <option value="secundus">Secundus Deskmat 28&Prime; &times; 12&Prime;</option>\n'
-    '            <option value="primus">Primus Deskmat 31&Prime; &times; 12&Prime;</option>\n'
-    '            <option value="tiro">Tiro Mousepad 10&Prime; &times; 8&Prime;</option>\n'
-    '            <option value="veteranus">Veteranus Mousepad 12.5&Prime; &times; 10.5&Prime;</option>\n'
-    '            <option value="gladiator">Gladiator Mousepad 18&Prime; &times; 12&Prime;</option>\n'
-    '        </select>\n'
-    '\n'
-    '        <span class="landing-label" style="color: var(--brand-hover);">CHOOSE EDITOR</span>\n'
-    '        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">\n'
-    '            <button class="action-btn btn-landing-simple" style="max-width: 200px; padding: 15px;" onclick="window.triggerSimpleFlow()">QUICK UPLOAD</button>\n'
-    '            <button class="action-btn btn-landing-adv" style="max-width: 200px; padding: 15px;" onclick="window.triggerAdvancedFlow()">ADVANCED EDITOR</button>\n'
-    '        </div>\n'
-    '\n'
-    '        <span class="landing-label" style="color: var(--brand-hover); margin-top:20px; display:block;">TOOLS</span>\n'
-    '        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">\n'
-    '            <button class="action-btn btn-landing-simple" style="max-width: 200px; padding: 15px;" onclick="window.openBatchMode()">BATCH ENHANCE</button>\n'
-    '            <button class="action-btn btn-landing-simple" style="max-width: 200px; padding: 15px;" onclick="window.openConverterMode()">FORMAT CONVERTER</button>\n'
-    '        </div>'
-)
+NEW_LANDING = """        <span class="landing-label" style="color: var(--brand-hover);">MAT SIZE</span>
+        <select id="standalone-size-sel" class="ui-select"
+            style="max-width:320px; margin:0 auto 24px; display:block;"
+            onchange="APP.activeSizeKey=this.value; window.populateGameDropdowns(); window.updateInfoBars(null);">
+            <option value="standard">Standard 24&Prime; &times; 14&Prime;</option>
+            <option value="extended">Extended 28&Prime; &times; 14&Prime;</option>
+            <option value="victor">Victor Deskmat 24&Prime; &times; 12&Prime;</option>
+            <option value="secundus">Secundus Deskmat 28&Prime; &times; 12&Prime;</option>
+            <option value="primus">Primus Deskmat 31&Prime; &times; 12&Prime;</option>
+            <option value="tiro">Tiro Mousepad 10&Prime; &times; 8&Prime;</option>
+            <option value="veteranus">Veteranus Mousepad 12.5&Prime; &times; 10.5&Prime;</option>
+            <option value="gladiator">Gladiator Mousepad 18&Prime; &times; 12&Prime;</option>
+        </select>
+
+        <div class="tool-tab-bar">
+            <button class="tool-tab-btn active" data-tab="quick-upload" onclick="window.switchTab('quick-upload')">&#x26A1; QUICK UPLOAD</button>
+            <button class="tool-tab-btn" data-tab="adv-editor" onclick="window.switchTab('adv-editor')">&#x270F;&#xFE0F; ADVANCED EDITOR</button>
+            <button class="tool-tab-btn" data-tab="batch" onclick="window.switchTab('batch')">&#x1F5BC;&#xFE0F; BATCH ENHANCE</button>
+            <button class="tool-tab-btn" data-tab="converter" onclick="window.switchTab('converter')">&#x1F504; FORMAT CONVERTER</button>
+        </div>
+
+        <!-- Quick Upload -->
+        <div id="tab-panel-quick-upload" class="tool-tab-panel active">
+            <div style="text-align:center; padding:36px 20px;">
+                <div style="font-size:48px; margin-bottom:14px;">&#x26A1;</div>
+                <h3 style="color:var(--brand-hover); margin:0 0 10px; font-size:18px; text-transform:uppercase; letter-spacing:1px;">Quick Upload</h3>
+                <p style="color:var(--brand-text-sec); font-size:13px; margin:0 auto 26px; max-width:360px; line-height:1.6;">Upload your artwork, fit it to the selected mat size, apply optional color correction, and download a print-ready JPG.</p>
+                <button class="action-btn btn-landing-simple" style="max-width:220px; padding:16px; font-size:15px;" onclick="window.triggerSimpleFlow()">OPEN EDITOR &#x2192;</button>
+            </div>
+        </div>
+
+        <!-- Advanced Editor -->
+        <div id="tab-panel-adv-editor" class="tool-tab-panel">
+            <div style="text-align:center; padding:36px 20px;">
+                <div style="font-size:48px; margin-bottom:14px;">&#x270F;&#xFE0F;</div>
+                <h3 style="color:var(--brand-hover); margin:0 0 10px; font-size:18px; text-transform:uppercase; letter-spacing:1px;">Advanced Editor</h3>
+                <p style="color:var(--brand-text-sec); font-size:13px; margin:0 auto 26px; max-width:360px; line-height:1.6;">Full canvas editor with AI upscaling, frame break, game overlay templates, recolor brush, and precise positioning controls.</p>
+                <button class="action-btn btn-landing-adv" style="max-width:220px; padding:16px; font-size:15px;" onclick="window.triggerAdvancedFlow()">OPEN EDITOR &#x2192;</button>
+            </div>
+        </div>
+
+        <!-- Batch Enhance -->
+        <div id="tab-panel-batch" class="tool-tab-panel">
+            <div id="batch-drop-zone"
+                style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
+                ondragover="event.preventDefault(); this.style.borderColor='var(--brand-hover)';"
+                ondragleave="this.style.borderColor='rgba(255,255,255,0.25)';"
+                ondrop="event.preventDefault(); this.style.borderColor='rgba(255,255,255,0.25)'; window.handleBatchFiles(event.dataTransfer.files);"
+                onclick="document.getElementById('batch-file-in').click()">
+                <div style="font-size:40px; margin-bottom:10px;">&#x1F5BC;&#xFE0F;</div>
+                <p style="color:var(--brand-text-pri); font-size:16px; margin:0 0 6px; font-weight:600;">Drag &amp; drop images here</p>
+                <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">or click to select multiple files</p>
+                <p style="color:var(--brand-text-sec); font-size:11px; margin:8px 0 0; opacity:0.7;">Applies: Brightness +12% &middot; Contrast +8% &middot; Saturation +15% &middot; Exports as 99% JPG</p>
+            </div>
+            <input type="file" id="batch-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleBatchFiles(this.files)">
+            <div id="batch-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
+            <div id="batch-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
+            <div id="batch-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                    <button id="batch-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;">&#x2B07; DOWNLOAD</button>
+                    <button class="action-btn btn-secondary" style="width:auto; padding:14px 20px; margin:0;" onclick="window.clearBatch()">CLEAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Format Converter -->
+        <div id="tab-panel-converter" class="tool-tab-panel">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+                <span style="color:var(--brand-text-sec); font-size:12px; font-weight:bold; letter-spacing:1px; white-space:nowrap;">CONVERT TO:</span>
+                <select id="converter-format-sel" class="ui-select" style="width:auto; min-width:200px; padding:8px 12px; font-size:13px;">
+                    <option value="jpeg">JPG &mdash; 99% quality</option>
+                    <option value="png">PNG &mdash; lossless</option>
+                    <option value="webp">WEBP &mdash; 95% quality</option>
+                </select>
+            </div>
+            <div id="converter-drop-zone"
+                style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
+                ondragover="event.preventDefault(); this.style.borderColor='var(--brand-hover)';"
+                ondragleave="this.style.borderColor='rgba(255,255,255,0.25)';"
+                ondrop="event.preventDefault(); this.style.borderColor='rgba(255,255,255,0.25)'; window.handleConverterFiles(event.dataTransfer.files);"
+                onclick="document.getElementById('converter-file-in').click()">
+                <div style="font-size:40px; margin-bottom:10px;">&#x1F504;</div>
+                <p style="color:var(--brand-text-pri); font-size:16px; margin:0 0 6px; font-weight:600;">Drag &amp; drop images to convert</p>
+                <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">PNG &middot; WEBP &middot; GIF &middot; AVIF &middot; BMP &middot; JPG &#x2192; any format</p>
+            </div>
+            <input type="file" id="converter-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleConverterFiles(this.files)">
+            <div id="converter-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
+            <div id="converter-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
+            <div id="converter-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                    <button id="converter-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;" onclick="window.downloadConverted()">&#x2B07; DOWNLOAD</button>
+                    <button class="action-btn btn-secondary" style="width:auto; padding:14px 20px; margin:0;" onclick="window.clearConverter()">CLEAR</button>
+                </div>
+            </div>
+        </div>"""
 src = src.replace(OLD_LANDING, NEW_LANDING)
-print('2b. Added size selector + tool buttons to landing page')
+print('2b. Built tab interface (Quick Upload / Adv Editor / Batch / Converter)')
 
 # 2c. Change ADD TO CART -> DOWNLOAD buttons
 src = src.replace(
@@ -233,83 +301,9 @@ print('2c. Changed Add to Cart -> Download buttons')
 # STEP 3 – ADD NEW HTML SECTIONS (batch + converter backdrops)
 # ══════════════════════════════════════════════════════════════════════════════
 
-BATCH_AND_CONVERTER_HTML = r"""
-<!-- ===== BATCH ENHANCE MODE ===== -->
-<div id="batch-backdrop" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:999999; overflow-y:auto; padding:20px; box-sizing:border-box;">
-    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px; position:relative;">
-        <button onclick="window.closeBatchMode()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--brand-text-sec); font-size:22px; cursor:pointer; line-height:1;">&times;</button>
-        <div style="margin-bottom:24px; padding-right:30px;">
-            <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Batch Enhance</h2>
-            <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Auto color-correct multiple images for print. Download individually or as a ZIP.</p>
-        </div>
-        <div id="batch-drop-zone"
-            style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
-            ondragover="event.preventDefault(); this.style.borderColor='var(--brand-hover)';"
-            ondragleave="this.style.borderColor='rgba(255,255,255,0.25)';"
-            ondrop="event.preventDefault(); this.style.borderColor='rgba(255,255,255,0.25)'; window.handleBatchFiles(event.dataTransfer.files);"
-            onclick="document.getElementById('batch-file-in').click()">
-            <div style="font-size:40px; margin-bottom:10px;">&#x1F5BC;&#xFE0F;</div>
-            <p style="color:var(--brand-text-pri); font-size:16px; margin:0 0 6px; font-weight:600;">Drag &amp; drop images here</p>
-            <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">or click to select multiple files</p>
-            <p style="color:var(--brand-text-sec); font-size:11px; margin:8px 0 0; opacity:0.7;">Applies: Brightness +12% &middot; Contrast +8% &middot; Saturation +15% &middot; Exports as 99% JPG</p>
-        </div>
-        <input type="file" id="batch-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleBatchFiles(this.files)">
-        <div id="batch-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
-        <div id="batch-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
-        <div id="batch-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
-            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <button id="batch-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;">&#x2B07; DOWNLOAD</button>
-                <button class="action-btn btn-secondary" style="width:auto; padding:14px 20px; margin:0;" onclick="window.clearBatch()">CLEAR</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ===== FORMAT CONVERTER MODE ===== -->
-<div id="converter-backdrop" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:999999; overflow-y:auto; padding:20px; box-sizing:border-box;">
-    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px; position:relative;">
-        <button onclick="window.closeConverterMode()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--brand-text-sec); font-size:22px; cursor:pointer; line-height:1;">&times;</button>
-        <div style="margin-bottom:20px; padding-right:30px;">
-            <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Format Converter</h2>
-            <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Convert any image to your chosen format. Single file downloads directly &middot; Multiple files download as ZIP.</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-            <span style="color:var(--brand-text-sec); font-size:12px; font-weight:bold; letter-spacing:1px; white-space:nowrap;">CONVERT TO:</span>
-            <select id="converter-format-sel" class="ui-select" style="width:auto; min-width:200px; padding:8px 12px; font-size:13px;">
-                <option value="jpeg">JPG &mdash; 99% quality</option>
-                <option value="png">PNG &mdash; lossless</option>
-                <option value="webp">WEBP &mdash; 95% quality</option>
-            </select>
-        </div>
-        <div id="converter-drop-zone"
-            style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
-            ondragover="event.preventDefault(); this.style.borderColor='var(--brand-hover)';"
-            ondragleave="this.style.borderColor='rgba(255,255,255,0.25)';"
-            ondrop="event.preventDefault(); this.style.borderColor='rgba(255,255,255,0.25)'; window.handleConverterFiles(event.dataTransfer.files);"
-            onclick="document.getElementById('converter-file-in').click()">
-            <div style="font-size:40px; margin-bottom:10px;">&#x1F504;</div>
-            <p style="color:var(--brand-text-pri); font-size:16px; margin:0 0 6px; font-weight:600;">Drag &amp; drop images to convert</p>
-            <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">PNG &middot; WEBP &middot; GIF &middot; AVIF &middot; BMP &middot; JPG &#x2192; any format</p>
-        </div>
-        <input type="file" id="converter-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleConverterFiles(this.files)">
-        <div id="converter-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
-        <div id="converter-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
-        <div id="converter-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
-            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <button id="converter-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;" onclick="window.downloadConverted()">&#x2B07; DOWNLOAD</button>
-                <button class="action-btn btn-secondary" style="width:auto; padding:14px 20px; margin:0;" onclick="window.clearConverter()">CLEAR</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-"""
-
-src = src.replace(
-    '<div id="designer-visibility-wrapper"',
-    BATCH_AND_CONVERTER_HTML + '<div id="designer-visibility-wrapper"'
-)
-print('3. Added batch + converter HTML sections')
+# Step 3: Batch/converter HTML now lives inside the tab panels in NEW_LANDING above.
+# No separate backdrop overlays needed.
+print('3. Batch + converter live in tab panels (no separate backdrops)')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 4 – NEW JS FUNCTIONS
@@ -369,15 +363,20 @@ NEW_JS = """
     // ============================================================
     var _batch = { results: [] };
 
-    window.openBatchMode = function() {
-        document.getElementById('batch-backdrop').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+    // ── TAB NAVIGATION ──────────────────────────────────────────
+    window.switchTab = function(tabId) {
+        document.querySelectorAll('.tool-tab-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.tab === tabId);
+        });
+        document.querySelectorAll('.tool-tab-panel').forEach(function(p) {
+            p.classList.remove('active');
+        });
+        var panel = document.getElementById('tab-panel-' + tabId);
+        if (panel) panel.classList.add('active');
     };
 
-    window.closeBatchMode = function() {
-        document.getElementById('batch-backdrop').style.display = 'none';
-        document.body.style.overflow = '';
-    };
+    window.openBatchMode = function() { window.switchTab('batch'); };
+    window.closeBatchMode = function() { /* tools now live in tabs — no overlay to close */ };
 
     window.clearBatch = function() {
         _batch.results = [];
@@ -502,15 +501,8 @@ NEW_JS = """
     // ============================================================
     var _converter = { results: [] };
 
-    window.openConverterMode = function() {
-        document.getElementById('converter-backdrop').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    };
-
-    window.closeConverterMode = function() {
-        document.getElementById('converter-backdrop').style.display = 'none';
-        document.body.style.overflow = '';
-    };
+    window.openConverterMode = function() { window.switchTab('converter'); };
+    window.closeConverterMode = function() { /* tools now live in tabs — no overlay to close */ };
 
     window.clearConverter = function() {
         _converter.results = [];
@@ -645,11 +637,44 @@ print('4. Added new JS functions (download, batch, converter)')
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Pull head-level tags out of body content
+TAB_CSS = """    <style>
+    /* ── TOOL TABS ── */
+    .tool-tab-bar {
+        display: flex;
+        border-bottom: 2px solid rgba(255,255,255,0.12);
+        margin-bottom: 28px;
+        gap: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .tool-tab-btn {
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        padding: 11px 20px;
+        color: var(--brand-text-sec);
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        font-family: 'Rubik', sans-serif;
+    }
+    .tool-tab-btn:hover { color: var(--brand-text-pri); }
+    .tool-tab-btn.active { color: var(--brand-hover); border-bottom-color: var(--brand-hover); }
+    .tool-tab-panel { display: none; }
+    .tool-tab-panel.active { display: block; }
+    </style>"""
+
 HEAD_EXTRAS = (
     '    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.3/dist/browser/umd/index.min.js"></script>\n'
     '    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Cinzel:wght@400;700&family=Dancing+Script:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Permanent+Marker&family=Press+Start+2P&family=Roboto:wght@400;500;600;700&family=Shadows+Into+Light&display=swap" rel="stylesheet">\n'
     '    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>\n'
-    '    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>'
+    '    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n'
+    + TAB_CSS
 )
 
 src = src.replace('<script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.3/dist/browser/umd/index.min.js"></script>\n', '')
