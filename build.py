@@ -236,13 +236,11 @@ print('2c. Changed Add to Cart -> Download buttons')
 BATCH_AND_CONVERTER_HTML = r"""
 <!-- ===== BATCH ENHANCE MODE ===== -->
 <div id="batch-backdrop" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:999999; overflow-y:auto; padding:20px; box-sizing:border-box;">
-    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-            <div>
-                <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Batch Enhance</h2>
-                <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Auto color-correct multiple images for print. Downloads as a ZIP.</p>
-            </div>
-            <button onclick="window.closeBatchMode()" class="action-btn btn-secondary" style="width:auto; padding:8px 16px; margin:0; flex-shrink:0;">&#x2715; CLOSE</button>
+    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px; position:relative;">
+        <button onclick="window.closeBatchMode()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--brand-text-sec); font-size:22px; cursor:pointer; line-height:1;">&times;</button>
+        <div style="margin-bottom:24px; padding-right:30px;">
+            <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Batch Enhance</h2>
+            <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Auto color-correct multiple images for print. Download individually or as a ZIP.</p>
         </div>
         <div id="batch-drop-zone"
             style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
@@ -257,10 +255,10 @@ BATCH_AND_CONVERTER_HTML = r"""
         </div>
         <input type="file" id="batch-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleBatchFiles(this.files)">
         <div id="batch-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
-        <div id="batch-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:12px; margin-bottom:20px;"></div>
+        <div id="batch-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
         <div id="batch-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
             <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <button id="batch-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;" onclick="window.downloadBatchZip()">&#x2B07; DOWNLOAD ALL AS ZIP</button>
+                <button id="batch-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;">&#x2B07; DOWNLOAD</button>
                 <button class="action-btn btn-secondary" style="width:auto; padding:14px 20px; margin:0;" onclick="window.clearBatch()">CLEAR</button>
             </div>
         </div>
@@ -269,13 +267,19 @@ BATCH_AND_CONVERTER_HTML = r"""
 
 <!-- ===== FORMAT CONVERTER MODE ===== -->
 <div id="converter-backdrop" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); z-index:999999; overflow-y:auto; padding:20px; box-sizing:border-box;">
-    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-            <div>
-                <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Format Converter</h2>
-                <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Convert any image (PNG, WEBP, GIF, AVIF&hellip;) to studio-quality JPG at 99% compression.</p>
-            </div>
-            <button onclick="window.closeConverterMode()" class="action-btn btn-secondary" style="width:auto; padding:8px 16px; margin:0; flex-shrink:0;">&#x2715; CLOSE</button>
+    <div style="max-width:960px; margin:0 auto; background:var(--brand-bg); border-radius:8px; padding:30px; position:relative;">
+        <button onclick="window.closeConverterMode()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--brand-text-sec); font-size:22px; cursor:pointer; line-height:1;">&times;</button>
+        <div style="margin-bottom:20px; padding-right:30px;">
+            <h2 style="color:var(--brand-hover); margin:0; font-size:22px; text-transform:uppercase; letter-spacing:1px;">Format Converter</h2>
+            <p style="color:var(--brand-text-sec); margin:6px 0 0; font-size:13px;">Convert any image to your chosen format. Single file downloads directly &middot; Multiple files download as ZIP.</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+            <span style="color:var(--brand-text-sec); font-size:12px; font-weight:bold; letter-spacing:1px; white-space:nowrap;">CONVERT TO:</span>
+            <select id="converter-format-sel" class="ui-select" style="width:auto; min-width:200px; padding:8px 12px; font-size:13px;">
+                <option value="jpeg">JPG &mdash; 99% quality</option>
+                <option value="png">PNG &mdash; lossless</option>
+                <option value="webp">WEBP &mdash; 95% quality</option>
+            </select>
         </div>
         <div id="converter-drop-zone"
             style="border:2px dashed rgba(255,255,255,0.25); border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; margin-bottom:20px; transition:border-color 0.2s;"
@@ -285,12 +289,11 @@ BATCH_AND_CONVERTER_HTML = r"""
             onclick="document.getElementById('converter-file-in').click()">
             <div style="font-size:40px; margin-bottom:10px;">&#x1F504;</div>
             <p style="color:var(--brand-text-pri); font-size:16px; margin:0 0 6px; font-weight:600;">Drag &amp; drop images to convert</p>
-            <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">PNG &middot; WEBP &middot; GIF &middot; AVIF &middot; BMP &#x2192; Studio JPG 99%</p>
-            <p style="color:var(--brand-text-sec); font-size:11px; margin:8px 0 0; opacity:0.7;">Single file downloads directly &middot; Multiple files download as ZIP</p>
+            <p style="color:var(--brand-text-sec); font-size:12px; margin:0;">PNG &middot; WEBP &middot; GIF &middot; AVIF &middot; BMP &middot; JPG &#x2192; any format</p>
         </div>
         <input type="file" id="converter-file-in" accept="image/*" multiple style="display:none;" onchange="window.handleConverterFiles(this.files)">
         <div id="converter-status" style="display:none; color:var(--brand-hover); font-size:13px; margin-bottom:12px; text-align:center;"></div>
-        <div id="converter-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:12px; margin-bottom:20px;"></div>
+        <div id="converter-preview-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
         <div id="converter-controls" style="display:none; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
             <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
                 <button id="converter-download-btn" class="action-btn" style="width:auto; padding:14px 32px; font-size:15px;" onclick="window.downloadConverted()">&#x2B07; DOWNLOAD</button>
@@ -399,14 +402,18 @@ NEW_JS = """
                 var baseName = file.name.replace(/\\.[^.]+$/, '');
                 var outName  = baseName + '-enhanced.jpg';
                 var thumbUrl = URL.createObjectURL(blob);
+                var idx      = _batch.results.length;
                 _batch.results.push({ name: outName, blob: blob, thumbUrl: thumbUrl });
 
                 var card = document.createElement('div');
                 card.style.cssText = 'background:rgba(0,0,0,0.3);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);text-align:center;';
                 card.innerHTML =
                     '<img src="' + thumbUrl + '" style="width:100%;height:100px;object-fit:cover;display:block;">' +
-                    '<div style="padding:6px;font-size:10px;color:var(--brand-text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + outName + '">' + outName + '</div>' +
-                    '<div style="padding:0 6px 6px;"><span style="font-size:10px;color:var(--success-green);font-weight:bold;">\u2713 ENHANCED</span></div>';
+                    '<div style="padding:6px 6px 2px;font-size:10px;color:var(--brand-text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + outName + '">' + outName + '</div>' +
+                    '<div style="padding:2px 6px 6px;display:flex;justify-content:space-between;align-items:center;">' +
+                    '<span style="font-size:10px;color:var(--success-green);font-weight:bold;">\u2713 ENHANCED</span>' +
+                    '<button onclick="window.downloadBatchSingle(' + idx + ')" style="background:none;border:none;color:var(--brand-hover);cursor:pointer;font-size:15px;padding:2px 4px;line-height:1;" title="Download this file">\u2B07</button>' +
+                    '</div>';
                 gridEl.appendChild(card);
             } catch(err) {
                 console.error('Batch error for', file.name, err);
@@ -419,6 +426,14 @@ NEW_JS = """
 
         statusEl.textContent = 'Done! ' + _batch.results.length + ' image(s) ready.';
         if (_batch.results.length > 0) {
+            var dlBtn = document.getElementById('batch-download-btn');
+            if (_batch.results.length === 1) {
+                dlBtn.textContent = '\u2B07 DOWNLOAD';
+                dlBtn.onclick = function() { window.downloadBatchSingle(0); };
+            } else {
+                dlBtn.textContent = '\u2B07 DOWNLOAD ALL AS ZIP';
+                dlBtn.onclick = window.downloadBatchZip;
+            }
             document.getElementById('batch-controls').style.display = 'block';
         }
     };
@@ -447,10 +462,22 @@ NEW_JS = """
         });
     };
 
+    window.downloadBatchSingle = function(idx) {
+        var r = _batch.results[idx];
+        if (!r) return;
+        var url = URL.createObjectURL(r.blob);
+        var a   = document.createElement('a');
+        a.href = url; a.download = r.name;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     window.downloadBatchZip = async function() {
         if (_batch.results.length === 0) return;
         var btn = document.getElementById('batch-download-btn');
-        btn.innerText = 'ZIPPING...'; btn.disabled = true;
+        var origLabel = btn.textContent;
+        btn.textContent = 'ZIPPING...'; btn.disabled = true;
         try {
             var zip = new JSZip();
             _batch.results.forEach(function(r) { zip.file(r.name, r.blob); });
@@ -461,12 +488,12 @@ NEW_JS = """
             document.body.appendChild(a); a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            btn.innerText = 'DOWNLOADED! \u2713'; btn.style.background = 'var(--success-green)';
-            setTimeout(function() { btn.innerText = '\u2B07 DOWNLOAD ALL AS ZIP'; btn.style.background = ''; btn.disabled = false; }, 2500);
+            btn.textContent = 'DOWNLOADED! \u2713'; btn.style.background = 'var(--success-green)';
+            setTimeout(function() { btn.textContent = origLabel; btn.style.background = ''; btn.disabled = false; }, 2500);
         } catch(err) {
             console.error(err);
             window.showAppAlert("ZIP Error", "Failed to create ZIP. Please try again.", "error");
-            btn.innerText = '\u2B07 DOWNLOAD ALL AS ZIP'; btn.disabled = false;
+            btn.textContent = origLabel; btn.disabled = false;
         }
     };
 
@@ -493,8 +520,17 @@ NEW_JS = """
         document.getElementById('converter-file-in').value = '';
     };
 
+    // Maps format value -> { mimeType, quality, ext, label }
+    var _fmtMap = {
+        'jpeg': { mimeType: 'image/jpeg', quality: 0.99, ext: 'jpg',  label: 'JPG'  },
+        'png':  { mimeType: 'image/png',  quality: 1.0,  ext: 'png',  label: 'PNG'  },
+        'webp': { mimeType: 'image/webp', quality: 0.95, ext: 'webp', label: 'WEBP' }
+    };
+
     window.handleConverterFiles = async function(files) {
         if (!files || files.length === 0) return;
+        var fmtKey   = (document.getElementById('converter-format-sel') || {}).value || 'jpeg';
+        var fmt      = _fmtMap[fmtKey] || _fmtMap['jpeg'];
         var statusEl = document.getElementById('converter-status');
         var gridEl   = document.getElementById('converter-preview-grid');
         statusEl.style.display = 'block';
@@ -505,9 +541,9 @@ NEW_JS = """
             var origExt = (file.name.split('.').pop() || 'IMG').toUpperCase();
             statusEl.textContent = 'Converting ' + (i + 1) + ' / ' + files.length + ': ' + file.name;
             try {
-                var blob     = await window._convertToJpg(file);
+                var blob     = await window._convertFile(file, fmt.mimeType, fmt.quality);
                 var base     = file.name.replace(/\\.[^.]+$/, '');
-                var outName  = base + '.jpg';
+                var outName  = base + '.' + fmt.ext;
                 var thumbUrl = URL.createObjectURL(blob);
                 _converter.results.push({ name: outName, blob: blob, thumbUrl: thumbUrl });
 
@@ -515,11 +551,11 @@ NEW_JS = """
                 card.style.cssText = 'background:rgba(0,0,0,0.3);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);text-align:center;';
                 card.innerHTML =
                     '<img src="' + thumbUrl + '" style="width:100%;height:100px;object-fit:cover;display:block;">' +
-                    '<div style="padding:6px;font-size:10px;color:var(--brand-text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + outName + '">' + outName + '</div>' +
-                    '<div style="padding:0 6px 6px;display:flex;justify-content:center;gap:4px;">' +
+                    '<div style="padding:6px 6px 2px;font-size:10px;color:var(--brand-text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + outName + '">' + outName + '</div>' +
+                    '<div style="padding:2px 6px 6px;display:flex;justify-content:center;gap:4px;align-items:center;">' +
                     '<span style="font-size:9px;background:rgba(255,255,255,0.15);padding:2px 5px;border-radius:3px;color:var(--brand-text-sec);">' + origExt + '</span>' +
                     '<span style="font-size:9px;color:var(--brand-text-sec);">&#x2192;</span>' +
-                    '<span style="font-size:9px;background:var(--brand-primary);padding:2px 5px;border-radius:3px;color:#fff;font-weight:bold;">JPG</span>' +
+                    '<span style="font-size:9px;background:var(--brand-primary);padding:2px 5px;border-radius:3px;color:#fff;font-weight:bold;">' + fmt.label + '</span>' +
                     '</div>';
                 gridEl.appendChild(card);
             } catch(err) {
@@ -537,12 +573,12 @@ NEW_JS = """
         if (_converter.results.length > 0) {
             ctrlEl.style.display = 'block';
             dlBtn.innerText = _converter.results.length === 1
-                ? '\u2B07 DOWNLOAD JPG'
+                ? '\u2B07 DOWNLOAD ' + fmt.label
                 : '\u2B07 DOWNLOAD ' + _converter.results.length + ' FILES AS ZIP';
         }
     };
 
-    window._convertToJpg = function(file) {
+    window._convertFile = function(file, mimeType, quality) {
         return new Promise(function(resolve, reject) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -554,7 +590,7 @@ NEW_JS = """
                     c.getContext('2d').drawImage(img, 0, 0);
                     c.toBlob(function(b) {
                         if (b) resolve(b); else reject(new Error('Export failed'));
-                    }, 'image/jpeg', 0.99);
+                    }, mimeType, quality);
                 };
                 img.onerror = function() { reject(new Error('Failed to load image')); };
                 img.src = e.target.result;
